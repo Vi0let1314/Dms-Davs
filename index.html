@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto Deathmatch</title>
+<style>
+:root{--bg:#f6f4f1;--card:#fff;--text:#1b1b1f;--muted:#6b6b76;--line:#e4e0da;--accent:#e63946;--gold:#c9a227}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#181b24;--text:#f1f1f4;--muted:#9a9aa8;--line:#2a2e3a;--accent:#ff4655;--gold:#e6c04a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.act{color:var(--accent);font-weight:700;letter-spacing:.08em;font-size:14px}
+h1{margin:2px 0 6px;font-size:clamp(28px,6vw,40px);line-height:1.1}
+.sub{color:var(--muted);margin:0 0 16px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px}
+.prize{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:420px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.rank{width:44px;font-weight:700}
+.r1 .rank{color:var(--gold)}
+.total{font-weight:700}
+a{color:var(--accent)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+.note{color:var(--muted);font-size:13px;margin-top:14px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);max-width:560px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog h2{margin-top:0}
+dialog h3{margin:16px 0 4px;font-size:16px}
+dialog ul{padding-left:20px;margin:6px 0}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="act" id="act"></div>
+      <h1>Reto Deathmatch</h1>
+      <p class="sub">¿Quién ganará más Deathmatch este acto? Deathmatch + Team Deathmatch, solo victorias.</p>
+    </div>
+    <button id="helpBtn">? Ayuda</button>
+  </header>
+
+  <div class="prize">🎁 <strong>Premio:</strong> <span id="prize"></span></div>
+
+  <div class="card scroll">
+    <table>
+      <thead><tr><th class="rank">#</th><th>Jugador</th><th class="n">DM</th><th class="n">TDM</th><th class="n">Total</th></tr></thead>
+      <tbody id="board"></tbody>
+    </table>
+    <div class="empty" id="msg">Cargando ranking…</div>
+  </div>
+  <p class="note" id="updated"></p>
+  <p class="note">Datos de <a href="https://tracker.gg/valorant" target="_blank" rel="noopener">tracker.gg</a>. Proyecto no afiliado a Riot Games.</p>
+</main>
+
+<dialog id="help">
+  <h2>Sobre el reto</h2>
+  <p>El objetivo del acto es que todos mejoremos como jugadores: ganar el mayor número de Deathmatch posible.</p>
+  <h3>🎯 ¿Cómo participo?</h3>
+  <p>Envía el enlace a tu tracker de tracker.gg en el canal del reto en Discord.</p>
+  <h3>📋 Reglas</h3>
+  <ul>
+    <li>Solo cuentan las partidas jugadas durante este acto.</li>
+    <li>Solo cuentan las victorias, en Deathmatch y Team Deathmatch.</li>
+    <li>No hay límite de Deathmatch diarios.</li>
+    <li>Solo pueden participar residentes en Europa.</li>
+  </ul>
+  <p class="note">El ranking es orientativo. El resultado oficial es el de la revisión en directo al final del acto.</p>
+  <button id="helpClose">Cerrar</button>
+</dialog>
+
+<script>
+/* ====== CONFIGURACIÓN: cambia solo esto ====== */
+var CONFIG = {
+  acto: "V26:A6",
+  premio: "Tarjeta regalo de 20 € en Valorant Points",
+  // Enlace CSV de tu hoja de Google (Archivo → Compartir → Publicar en la web → CSV)
+  sheetCsvUrl: https://docs.google.com/spreadsheets/d/e/2PACX-1vSnGg-yP_BoWJo1ZhI2qqtRMt-qP11eAnTK1CQKqP7G4nYMwwHmCTm44sL7b5BL-kT0vo8fMkk9EXB7/pubhtml,
+  // Cada cuántos minutos vuelve a leer la hoja la página abierta
+  refrescoMinutos: 5
+};
+/* ============================================ */
+
+var $ = function(id){ return document.getElementById(id); };
+$("act").textContent = CONFIG.acto;
+$("prize").textContent = CONFIG.premio;
+$("helpBtn").onclick = function(){ $("help").showModal(); };
+$("helpClose").onclick = function(){ $("help").close(); };
+
+function esc(s){ var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+function num(v){ v = parseInt(v, 10); return isFinite(v) && v > 0 ? v : 0; }
+function safeUrl(u){ return /^https:\/\/(www\.)?tracker\.gg\//.test(u || "") ? u : ""; }
+
+// Lector de CSV que respeta comillas
+function parseCsv(text){
+  var rows = [], row = [], cur = "", q = false;
+  for (var i = 0; i < text.length; i++){
+    var c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i+1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ","){ row.push(cur); cur = ""; }
+    else if (c === "\n"){ row.push(cur); rows.push(row); row = []; cur = ""; }
+    else if (c !== "\r") cur += c;
+  }
+  if (cur !== "" || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+
+function render(players){
+  players.forEach(function(p){ p.total = p.dm + p.tdm; });
+  players.sort(function(a, b){ return b.total - a.total || a.nombre.localeCompare(b.nombre); });
+  $("msg").hidden = players.length > 0;
+  if (!players.length) $("msg").textContent = "Aún no hay participantes. ¡Envía tu tracker en el canal del reto!";
+  $("board").innerHTML = players.map(function(p, i){
+    var u = safeUrl(p.tracker);
+    var nm = u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(p.nombre) + '</a>' : esc(p.nombre);
+    return '<tr class="' + (i === 0 && p.total > 0 ? "r1" : "") + '"><td class="rank">' + (i + 1) + '</td><td>' + nm +
+      '</td><td class="n">' + p.dm + '</td><td class="n">' + p.tdm + '</td><td class="n total">' + p.total + '</td></tr>';
+  }).join("");
+}
+
+function load(){
+  if (!CONFIG.sheetCsvUrl || CONFIG.sheetCsvUrl.indexOf("PEGA_AQUI") === 0){
+    $("msg").textContent = "Falta configurar el enlace CSV de la hoja de Google.";
+    return;
+  }
+  // El parámetro evita que el navegador use una copia antigua
+  var url = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.indexOf("?") > -1 ? "&" : "?") + "t=" + Date.now();
+  fetch(url).then(function(r){
+    if (!r.ok) throw new Error("http " + r.status);
+    return r.text();
+  }).then(function(text){
+    var rows = parseCsv(text);
+    rows.shift(); // cabecera: nombre, tracker, dm, tdm
+    var players = rows.filter(function(r){ return (r[0] || "").trim(); }).map(function(r){
+      return { nombre: r[0].trim(), tracker: (r[1] || "").trim(), dm: num(r[2]), tdm: num(r[3]) };
+    });
+    render(players);
+    $("updated").textContent = "Última lectura: " + new Date().toLocaleTimeString("es-ES", {hour: "2-digit", minute: "2-digit"});
+  }).catch(function(){
+    $("msg").hidden = false;
+    $("msg").textContent = "No se pudo cargar el ranking. Inténtalo de nuevo en unos minutos.";
+  });
+}
+
+load();
+setInterval(load, CONFIG.refrescoMinutos * 60 * 1000);
+</script>
+</body>
+</html>
