@@ -3,157 +3,181 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reto Deathmatch</title>
+<title>Reto Deathmatch V26:A6</title>
+<meta name="description" content="Ranking en directo del reto de Deathmatch del acto V26:A6 de Valorant.">
 <style>
-:root{--bg:#f6f4f1;--card:#fff;--text:#1b1b1f;--muted:#6b6b76;--line:#e4e0da;--accent:#e63946;--gold:#c9a227}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#181b24;--text:#f1f1f4;--muted:#9a9aa8;--line:#2a2e3a;--accent:#ff4655;--gold:#e6c04a;color-scheme:dark}}
+:root{
+  --ink:#0f1923; --panel:#1b2733; --line:#2c3b4a;
+  --bone:#ece8e1; --mute:#9aa7b4; --red:#ff4655;
+  --font:"Bahnschrift","Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.act{color:var(--accent);font-weight:700;letter-spacing:.08em;font-size:14px}
-h1{margin:2px 0 6px;font-size:clamp(28px,6vw,40px);line-height:1.1}
-.sub{color:var(--muted);margin:0 0 16px}
-button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px}
-.prize{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:0 0 16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:420px}
-th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-tr:last-child td{border-bottom:0}
-.n{text-align:right;font-variant-numeric:tabular-nums}
-.rank{width:44px;font-weight:700}
-.r1 .rank{color:var(--gold)}
-.total{font-weight:700}
-a{color:var(--accent)}
-.empty{padding:28px 16px;text-align:center;color:var(--muted)}
-.note{color:var(--muted);font-size:13px;margin-top:14px}
-dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);max-width:560px;width:calc(100% - 32px);padding:20px}
-dialog::backdrop{background:rgba(0,0,0,.55)}
-dialog h2{margin-top:0}
-dialog h3{margin:16px 0 4px;font-size:16px}
+html{background:var(--ink)}
+body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--font);line-height:1.5;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:720px;margin:0 auto;padding:28px 20px 48px}
+header{border-left:6px solid var(--red);padding-left:16px;margin-bottom:28px}
+.act{color:var(--red);font-weight:700;font-size:1rem;margin:0}
+h1{font-size:clamp(2.6rem,11vw,4.4rem);line-height:.95;margin:4px 0 10px;font-weight:800;letter-spacing:-.02em}
+.sub{margin:0;color:var(--mute);font-size:1.05rem;max-width:46ch}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 20px}
+.prize{background:var(--red);color:var(--ink);font-weight:700;padding:6px 12px;border-radius:2px}
+button.help{background:none;border:1px solid var(--line);color:var(--bone);font:inherit;
+  padding:6px 12px;border-radius:2px;cursor:pointer}
+button.help:hover{border-color:var(--bone)}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.rank{list-style:none;margin:0;padding:0}
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;
+  padding:14px 12px;border-bottom:1px solid var(--line)}
+.row.head{color:var(--mute);font-size:.9rem;padding-top:0}
+.rank .row:first-child{background:var(--panel);border-left:4px solid var(--red)}
+.pos{font-size:1.5rem;font-weight:800;color:var(--mute)}
+.rank .row:first-child .pos{color:var(--red)}
+.name{font-size:1.15rem;font-weight:700;overflow-wrap:anywhere}
+.name a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.name a:hover{border-color:var(--red)}
+.split{display:block;color:var(--mute);font-size:.88rem;font-weight:400}
+.total{font-size:1.9rem;font-weight:800;text-align:right;min-width:3ch}
+.state{padding:28px 12px;color:var(--mute);border:1px dashed var(--line);border-radius:2px}
+.state strong{color:var(--bone);display:block;font-size:1.1rem;margin-bottom:4px}
+footer{margin-top:28px;color:var(--mute);font-size:.88rem}
+footer p{margin:4px 0}
+footer a{color:var(--bone)}
+dialog{background:var(--panel);color:var(--bone);border:1px solid var(--line);border-radius:2px;
+  max-width:560px;width:calc(100% - 32px);padding:22px;font-family:var(--font)}
+dialog::backdrop{background:rgba(15,25,35,.8)}
+dialog h2{margin:0 0 8px;font-size:1.6rem}
+dialog h3{margin:18px 0 4px;font-size:1.1rem;color:var(--red)}
+dialog p,dialog li{margin:4px 0}
 dialog ul{padding-left:20px;margin:6px 0}
+dialog .close{float:right;background:none;border:0;color:var(--bone);font-size:1.6rem;cursor:pointer;line-height:1}
+@media (prefers-reduced-motion:no-preference){
+  .rank{animation:in .35s ease-out}
+  @keyframes in{from{opacity:0}to{opacity:1}}
+}
 </style>
 </head>
 <body>
-<main>
+<div class="wrap">
   <header>
-    <div>
-      <div class="act" id="act"></div>
-      <h1>Reto Deathmatch</h1>
-      <p class="sub">¿Quién ganará más Deathmatch este acto? Deathmatch + Team Deathmatch, solo victorias.</p>
-    </div>
-    <button id="helpBtn">? Ayuda</button>
+    <p class="act">V26:A6</p>
+    <h1>Reto Deathmatch</h1>
+    <p class="sub">¿Quién ganará más Deathmatch este acto? Cuentan las victorias de Deathmatch y Team Deathmatch.</p>
   </header>
 
-  <div class="prize">🎁 <strong>Premio:</strong> <span id="prize"></span></div>
-
-  <div class="card scroll">
-    <table>
-      <thead><tr><th class="rank">#</th><th>Jugador</th><th class="n">DM</th><th class="n">TDM</th><th class="n">Total</th></tr></thead>
-      <tbody id="board"></tbody>
-    </table>
-    <div class="empty" id="msg">Cargando ranking…</div>
+  <div class="bar">
+    <span class="prize">Premio: tarjeta de 20 € en Valorant Points</span>
+    <button class="help" id="openHelp" type="button">Ayuda</button>
   </div>
-  <p class="note" id="updated"></p>
-  <p class="note">Datos de <a href="https://tracker.gg/valorant" target="_blank" rel="noopener">tracker.gg</a>. Proyecto no afiliado a Riot Games.</p>
-</main>
+
+  <div id="out" aria-live="polite"><div class="state"><strong>Cargando ranking</strong>Un momento.</div></div>
+
+  <footer>
+    <p id="updated"></p>
+    <p>Datos de <a href="https://tracker.gg/valorant">tracker.gg</a>. Se actualizan automáticamente cada 30 minutos. Proyecto no afiliado a Riot Games.</p>
+  </footer>
+</div>
 
 <dialog id="help">
+  <button class="close" id="closeHelp" type="button" aria-label="Cerrar">×</button>
   <h2>Sobre el reto</h2>
-  <p>El objetivo del acto es que todos mejoremos como jugadores: ganar el mayor número de Deathmatch posible.</p>
-  <h3>🎯 ¿Cómo participo?</h3>
-  <p>Envía el enlace a tu tracker de tracker.gg en el canal del reto en Discord.</p>
-  <h3>📋 Reglas</h3>
+  <p>El objetivo del acto V26:A6 es que todos mejoremos como jugadores. El reto es sencillo: ganar el mayor número de Deathmatch posible durante el acto.</p>
+  <h3>Premio</h3>
+  <p>Quien termine con más Deathmatch ganados (y supere la marca del organizador) se lleva una tarjeta regalo de 20 € en Valorant Points.</p>
+  <h3>Cómo participo</h3>
+  <p>Envía el enlace de tu tracker de tracker.gg en el canal del reto en Discord. Si tienes dudas, pregunta en el chat general.</p>
+  <h3>Cuándo se anuncia el ganador</h3>
+  <p>Al terminar el acto se revisan todos los trackers en directo y se contacta con el ganador por Discord.</p>
+  <h3>Reglas</h3>
   <ul>
     <li>Solo cuentan las partidas jugadas durante este acto.</li>
-    <li>Solo cuentan las victorias, en Deathmatch y Team Deathmatch.</li>
+    <li>Solo cuentan las victorias, de Deathmatch y Team Deathmatch sumadas.</li>
     <li>No hay límite de Deathmatch diarios.</li>
     <li>Solo pueden participar residentes en Europa.</li>
+    <li>Si nadie supera el contador final del organizador, no habrá ganador.</li>
   </ul>
-  <p class="note">El ranking es orientativo. El resultado oficial es el de la revisión en directo al final del acto.</p>
-  <button id="helpClose">Cerrar</button>
+  <p>El ranking de esta web es orientativo. El resultado oficial es el de la revisión en directo al final del acto.</p>
 </dialog>
 
 <script>
-/* ====== CONFIGURACIÓN: cambia solo esto ====== */
-var CONFIG = {
-  acto: "V26:A6",
-  premio: "Tarjeta regalo de 20 € en Valorant Points",
-  // Enlace CSV de tu hoja de Google (Archivo → Compartir → Publicar en la web → CSV)
-  sheetCsvUrl: https://docs.google.com/spreadsheets/d/e/2PACX-1vSnGg-yP_BoWJo1ZhI2qqtRMt-qP11eAnTK1CQKqP7G4nYMwwHmCTm44sL7b5BL-kT0vo8fMkk9EXB7/pubhtml,
-  // Cada cuántos minutos vuelve a leer la hoja la página abierta
-  refrescoMinutos: 5
-};
-/* ============================================ */
+const CSV_URL = "data/ranking.csv";
+const out = document.getElementById("out");
+const updated = document.getElementById("updated");
 
-var $ = function(id){ return document.getElementById(id); };
-$("act").textContent = CONFIG.acto;
-$("prize").textContent = CONFIG.premio;
-$("helpBtn").onclick = function(){ $("help").showModal(); };
-$("helpClose").onclick = function(){ $("help").close(); };
-
-function esc(s){ var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
-function num(v){ v = parseInt(v, 10); return isFinite(v) && v > 0 ? v : 0; }
-function safeUrl(u){ return /^https:\/\/(www\.)?tracker\.gg\//.test(u || "") ? u : ""; }
-
-// Lector de CSV que respeta comillas
-function parseCsv(text){
-  var rows = [], row = [], cur = "", q = false;
-  for (var i = 0; i < text.length; i++){
-    var c = text[i];
+function parseCSV(text){
+  const rows = []; let row = [], cell = "", q = false;
+  text = text.replace(/^\uFEFF/, "");
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
     if (q){
-      if (c === '"'){ if (text[i+1] === '"'){ cur += '"'; i++; } else q = false; }
-      else cur += c;
+      if (c === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else q = false; }
+      else cell += c;
     } else if (c === '"') q = true;
-    else if (c === ","){ row.push(cur); cur = ""; }
-    else if (c === "\n"){ row.push(cur); rows.push(row); row = []; cur = ""; }
-    else if (c !== "\r") cur += c;
+    else if (c === ","){ row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r"){
+      if (c === "\r" && text[i+1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += c;
   }
-  if (cur !== "" || row.length){ row.push(cur); rows.push(row); }
-  return rows;
+  if (cell !== "" || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim() !== ""));
 }
 
-function render(players){
-  players.forEach(function(p){ p.total = p.dm + p.tdm; });
-  players.sort(function(a, b){ return b.total - a.total || a.nombre.localeCompare(b.nombre); });
-  $("msg").hidden = players.length > 0;
-  if (!players.length) $("msg").textContent = "Aún no hay participantes. ¡Envía tu tracker en el canal del reto!";
-  $("board").innerHTML = players.map(function(p, i){
-    var u = safeUrl(p.tracker);
-    var nm = u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(p.nombre) + '</a>' : esc(p.nombre);
-    return '<tr class="' + (i === 0 && p.total > 0 ? "r1" : "") + '"><td class="rank">' + (i + 1) + '</td><td>' + nm +
-      '</td><td class="n">' + p.dm + '</td><td class="n">' + p.tdm + '</td><td class="n total">' + p.total + '</td></tr>';
-  }).join("");
+function esc(s){
+  return String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 }
+const num = v => { const n = parseInt(String(v).replace(/[^\d-]/g, ""), 10); return isNaN(n) ? 0 : n; };
 
-function load(){
-  if (!CONFIG.sheetCsvUrl || CONFIG.sheetCsvUrl.indexOf("PEGA_AQUI") === 0){
-    $("msg").textContent = "Falta configurar el enlace CSV de la hoja de Google.";
+function render(rows){
+  if (rows.length < 2){
+    out.innerHTML = '<div class="state"><strong>Aún no hay participantes</strong>Envía tu tracker en el canal del reto de Discord para entrar en el ranking.</div>';
+    updated.textContent = "";
     return;
   }
-  // El parámetro evita que el navegador use una copia antigua
-  var url = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.indexOf("?") > -1 ? "&" : "?") + "t=" + Date.now();
-  fetch(url).then(function(r){
-    if (!r.ok) throw new Error("http " + r.status);
-    return r.text();
-  }).then(function(text){
-    var rows = parseCsv(text);
-    rows.shift(); // cabecera: nombre, tracker, dm, tdm
-    var players = rows.filter(function(r){ return (r[0] || "").trim(); }).map(function(r){
-      return { nombre: r[0].trim(), tracker: (r[1] || "").trim(), dm: num(r[2]), tdm: num(r[3]) };
-    });
-    render(players);
-    $("updated").textContent = "Última lectura: " + new Date().toLocaleTimeString("es-ES", {hour: "2-digit", minute: "2-digit"});
-  }).catch(function(){
-    $("msg").hidden = false;
-    $("msg").textContent = "No se pudo cargar el ranking. Inténtalo de nuevo en unos minutos.";
+  const h = rows[0].map(x => x.trim().toLowerCase());
+  const col = n => h.indexOf(n);
+  const players = rows.slice(1).map(r => {
+    const dm = num(r[col("victorias_dm")]), tdm = num(r[col("victorias_tdm")]);
+    const t = r[col("total")];
+    return {
+      nombre: (r[col("nombre")] || "").trim() || "Sin nombre",
+      url: (r[col("tracker_url")] || "").trim(),
+      dm, tdm,
+      total: (t !== undefined && String(t).trim() !== "") ? num(t) : dm + tdm,
+      act: (r[col("actualizado")] || "").trim()
+    };
+  }).sort((a, b) => b.total - a.total || a.nombre.localeCompare(b.nombre));
+
+  let html = '<div class="row head"><span>Puesto</span><span>Jugador</span><span>Victorias</span></div><ol class="rank" style="list-style:none;margin:0;padding:0">';
+  players.forEach((p, i) => {
+    const name = /^https:\/\//.test(p.url)
+      ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.nombre) + '</a>'
+      : esc(p.nombre);
+    html += '<li class="row"><span class="pos">' + (i + 1) + '</span>' +
+      '<span class="name">' + name + '<span class="split">DM ' + p.dm + ' y TDM ' + p.tdm + '</span></span>' +
+      '<span class="total">' + p.total + '</span></li>';
   });
+  out.innerHTML = html + "</ol>";
+  const last = players.map(p => p.act).filter(Boolean).sort().pop();
+  updated.textContent = last ? "Última actualización: " + last : "";
 }
 
+async function load(){
+  try{
+    const res = await fetch(CSV_URL + "?t=" + Date.now(), {cache: "no-store"});
+    if (!res.ok) throw new Error(res.status);
+    render(parseCSV(await res.text()));
+  }catch(e){
+    out.innerHTML = '<div class="state"><strong>No se pudo cargar el ranking</strong>Comprueba que existe el archivo data/ranking.csv en el repositorio e inténtalo de nuevo en unos minutos.</div>';
+  }
+}
 load();
-setInterval(load, CONFIG.refrescoMinutos * 60 * 1000);
+setInterval(load, 30 * 60 * 1000);
+
+const dlg = document.getElementById("help");
+document.getElementById("openHelp").onclick = () => dlg.showModal();
+document.getElementById("closeHelp").onclick = () => dlg.close();
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 </script>
 </body>
 </html>
