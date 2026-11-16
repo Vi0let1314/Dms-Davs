@@ -164,11 +164,12 @@ function render(rows){
 
 async function load(){
   try{
-    const res = await fetch(CSV_URL + "?t=" + Date.now(), {cache: "no-store"});
+    const sep = CSV_URL.includes("?") ? "&" : "?";
+    const res = await fetch(CSV_URL + sep + "t=" + Date.now(), {cache: "no-store"});
     if (!res.ok) throw new Error(res.status);
     render(parseCSV(await res.text()));
   }catch(e){
-    out.innerHTML = '<div class="state"><strong>No se pudo cargar el ranking</strong>Comprueba que existe el archivo data/ranking.csv en el repositorio e inténtalo de nuevo en unos minutos.</div>';
+    out.innerHTML = '<div class="state"><strong>No se pudo cargar el ranking</strong>Comprueba la conexión con Google Sheets e inténtalo de nuevo en unos minutos.</div>';
   }
 }
 load();
