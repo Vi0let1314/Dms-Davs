@@ -9,6 +9,7 @@
 :root{
   --ink:#0f1923; --panel:#1b2733; --line:#2c3b4a;
   --bone:#ece8e1; --mute:#9aa7b4; --red:#ff4655;
+  --gold:#f0b940; --silver:#c0c8d0; --bronze:#cd7f46;
   --font:"Bahnschrift","Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box}
@@ -20,24 +21,53 @@ header{border-left:6px solid var(--red);padding-left:16px;margin-bottom:28px}
 .act{color:var(--red);font-weight:700;font-size:1rem;margin:0}
 h1{font-size:clamp(2.6rem,11vw,4.4rem);line-height:.95;margin:4px 0 10px;font-weight:800;letter-spacing:-.02em}
 .sub{margin:0;color:var(--mute);font-size:1.05rem;max-width:46ch}
-.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 20px}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 24px}
 .prize{background:var(--red);color:var(--ink);font-weight:700;padding:6px 12px;border-radius:2px}
 button.help{background:none;border:1px solid var(--line);color:var(--bone);font:inherit;
   padding:6px 12px;border-radius:2px;cursor:pointer}
 button.help:hover{border-color:var(--bone)}
 :focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+/* PODIO TOP 3 */
+.podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:10px;align-items:end;margin:0 0 26px}
+.pod{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:16px 12px;
+  text-align:center;position:relative;display:flex;flex-direction:column;justify-content:space-between}
+.pod.p1{order:2;min-height:198px;border-top:4px solid var(--gold);background:linear-gradient(180deg,#233242 0%,var(--panel) 100%)}
+.pod.p2{order:1;min-height:168px;border-top:4px solid var(--silver)}
+.pod.p3{order:3;min-height:150px;border-top:4px solid var(--bronze)}
+.pod-badge{font-size:1.25rem;font-weight:800;letter-spacing:.03em;margin-bottom:6px}
+.pod.p1 .pod-badge{color:var(--gold);font-size:1.5rem}
+.pod.p2 .pod-badge{color:var(--silver)}
+.pod.p3 .pod-badge{color:var(--bronze)}
+.pod-name{font-size:1.15rem;font-weight:700;overflow-wrap:anywhere;margin:2px 0}
+.pod.p1 .pod-name{font-size:1.3rem}
+.pod-name a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.pod-name a:hover{border-color:var(--red)}
+.pod-total{font-size:2.2rem;font-weight:800;line-height:1.1;margin:8px 0 4px}
+.pod.p1 .pod-total{font-size:2.7rem;color:var(--gold)}
+.pod-split{color:var(--mute);font-size:.84rem}
+
+@media (max-width:540px){
+  .podium{grid-template-columns:1fr;align-items:stretch}
+  .pod.p1,.pod.p2,.pod.p3{order:unset;min-height:auto;text-align:left;
+    display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:14px 12px}
+  .pod-badge{margin:0}
+  .pod-total{margin:0;font-size:1.9rem}
+  .pod.p1 .pod-total{font-size:2.1rem}
+}
+
+/* LISTA RESTO DE PARTICIPANTES */
 .rank{list-style:none;margin:0;padding:0}
 .row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;
   padding:14px 12px;border-bottom:1px solid var(--line)}
 .row.head{color:var(--mute);font-size:.9rem;padding-top:0}
-.rank .row:first-child{background:var(--panel);border-left:4px solid var(--red)}
 .pos{font-size:1.5rem;font-weight:800;color:var(--mute)}
-.rank .row:first-child .pos{color:var(--red)}
 .name{font-size:1.15rem;font-weight:700;overflow-wrap:anywhere}
 .name a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
 .name a:hover{border-color:var(--red)}
 .split{display:block;color:var(--mute);font-size:.88rem;font-weight:400}
 .total{font-size:1.9rem;font-weight:800;text-align:right;min-width:3ch}
+
 .state{padding:28px 12px;color:var(--mute);border:1px dashed var(--line);border-radius:2px}
 .state strong{color:var(--bone);display:block;font-size:1.1rem;margin-bottom:4px}
 footer{margin-top:28px;color:var(--mute);font-size:.88rem}
@@ -52,7 +82,7 @@ dialog p,dialog li{margin:4px 0}
 dialog ul{padding-left:20px;margin:6px 0}
 dialog .close{float:right;background:none;border:0;color:var(--bone);font-size:1.6rem;cursor:pointer;line-height:1}
 @media (prefers-reduced-motion:no-preference){
-  .rank{animation:in .35s ease-out}
+  .podium,.rank{animation:in .35s ease-out}
   @keyframes in{from{opacity:0}to{opacity:1}}
 }
 </style>
@@ -128,6 +158,12 @@ function esc(s){
 }
 const num = v => { const n = parseInt(String(v).replace(/[^\d-]/g, ""), 10); return isNaN(n) ? 0 : n; };
 
+function playerLink(p){
+  return /^https:\/\//.test(p.url)
+    ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.nombre) + '</a>'
+    : esc(p.nombre);
+}
+
 function render(rows){
   if (rows.length < 2){
     out.innerHTML = '<div class="state"><strong>Aún no hay participantes</strong>Envía tu tracker en el canal del reto de Discord para entrar en el ranking.</div>';
@@ -148,16 +184,36 @@ function render(rows){
     };
   }).sort((a, b) => b.total - a.total || a.nombre.localeCompare(b.nombre));
 
-  let html = '<div class="row head"><span>Puesto</span><span>Jugador</span><span>Victorias</span></div><ol class="rank" style="list-style:none;margin:0;padding:0">';
-  players.forEach((p, i) => {
-    const name = /^https:\/\//.test(p.url)
-      ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.nombre) + '</a>'
-      : esc(p.nombre);
-    html += '<li class="row"><span class="pos">' + (i + 1) + '</span>' +
-      '<span class="name">' + name + '<span class="split">DM ' + p.dm + ' y TDM ' + p.tdm + '</span></span>' +
-      '<span class="total">' + p.total + '</span></li>';
-  });
-  out.innerHTML = html + "</ol>";
+  const top3 = players.slice(0, 3);
+  const rest = players.slice(3);
+  let html = "";
+
+  // Podio para los 3 primeros
+  if (top3.length){
+    html += '<section class="podium" aria-label="Podio">';
+    top3.forEach((p, i) => {
+      const rank = i + 1;
+      html += '<article class="pod p' + rank + '">' +
+        '<div class="pod-badge">#' + rank + '</div>' +
+        '<div class="pod-name">' + playerLink(p) + '<span class="pod-split" style="display:block">DM ' + p.dm + ' · TDM ' + p.tdm + '</span></div>' +
+        '<div class="pod-total">' + p.total + '</div>' +
+      '</article>';
+    });
+    html += '</section>';
+  }
+
+  // Resto de la tabla a partir del 4º puesto
+  if (rest.length){
+    html += '<div class="row head"><span>Puesto</span><span>Jugador</span><span>Victorias</span></div><ol class="rank">';
+    rest.forEach((p, i) => {
+      html += '<li class="row"><span class="pos">' + (i + 4) + '</span>' +
+        '<span class="name">' + playerLink(p) + '<span class="split">DM ' + p.dm + ' y TDM ' + p.tdm + '</span></span>' +
+        '<span class="total">' + p.total + '</span></li>';
+    });
+    html += '</ol>';
+  }
+
+  out.innerHTML = html;
   const last = players.map(p => p.act).filter(Boolean).sort().pop();
   updated.textContent = last ? "Última actualización: " + last : "";
 }
