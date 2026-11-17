@@ -46,12 +46,24 @@ button.help:hover{border-color:var(--bone)}
 .pod-total{font-size:2.2rem;font-weight:800;line-height:1.1;margin:8px 0 4px}
 .pod.p1 .pod-total{font-size:2.7rem;color:var(--gold)}
 .pod-split{color:var(--mute);font-size:.84rem}
+.av{width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--line);border:3px solid var(--line);display:block;flex:none}
+.pod .av{width:72px;height:72px;margin:0 auto 8px}
+.pod.p1 .av{width:92px;height:92px;border-color:var(--gold)}
+.pod.p2 .av{border-color:var(--silver)}
+.pod.p3 .av{border-color:var(--bronze)}
+.pod-name{order:-1}
+.crown{position:absolute;top:-34px;left:50%;transform:translateX(-50%);font-size:1.6rem}
+.tag{color:var(--mute);font-weight:400;font-size:.8em}
+.who{display:flex;align-items:center;gap:12px;min-width:0}
 
 @media (max-width:540px){
   .podium{grid-template-columns:1fr;align-items:stretch}
   .pod.p1,.pod.p2,.pod.p3{order:unset;min-height:auto;text-align:left;
     display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:14px 12px}
   .pod-badge{margin:0}
+  .pod-name{order:0;display:flex;align-items:center;gap:10px}
+  .pod .av,.pod.p1 .av{width:48px;height:48px;margin:0}
+  .crown{display:none}
   .pod-total{margin:0;font-size:1.9rem}
   .pod.p1 .pod-total{font-size:2.1rem}
 }
@@ -159,9 +171,21 @@ function esc(s){
 const num = v => { const n = parseInt(String(v).replace(/[^\d-]/g, ""), 10); return isNaN(n) ? 0 : n; };
 
 function playerLink(p){
-  return /^https:\/\//.test(p.url)
-    ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.nombre) + '</a>'
+  const i = p.nombre.lastIndexOf("#");
+  const base = i > 0
+    ? esc(p.nombre.slice(0, i)) + '<span class="tag">#' + esc(p.nombre.slice(i + 1)) + '</span>'
     : esc(p.nombre);
+  return /^https:\/\//.test(p.url)
+    ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + base + '</a>'
+    : base;
+}
+
+// Tarjeta del jugador: solo se aceptan imágenes de media.valorant-api.com; si no hay, se muestra la inicial
+function avatar(p){
+  if (/^https:\/\/media\.valorant-api\.com\//.test(p.avatar)){
+    return '<img class="av" src="' + esc(p.avatar) + '" alt="" loading="lazy" referrerpolicy="no-referrer">';
+  }
+  return '<span class="av" style="display:flex;align-items:center;justify-content:center;font-weight:800">' + esc((p.nombre[0] || "?").toUpperCase()) + '</span>';
 }
 
 function render(rows){
@@ -177,6 +201,7 @@ function render(rows){
     return {
       nombre: (r[col("nombre")] || "").trim() || "Sin nombre",
       url: (r[col("tracker_url")] || "").trim(),
+      avatar: (r[col("avatar")] || "").trim(),
       dm, tdm,
       // El total se calcula siempre aquí, sin leer la columna "total" de la hoja
       total: dm + tdm,
@@ -193,9 +218,9 @@ function render(rows){
     html += '<section class="podium" aria-label="Podio">';
     top3.forEach((p, i) => {
       const rank = i + 1;
-      html += '<article class="pod p' + rank + '">' +
+      html += '<article class="pod p' + rank + '">' + (rank === 1 ? '<span class="crown" aria-hidden="true">👑</span>' : '') +
         '<div class="pod-badge">#' + rank + '</div>' +
-        '<div class="pod-name">' + playerLink(p) + '<span class="pod-split" style="display:block">DM ' + p.dm + ' · TDM ' + p.tdm + '</span></div>' +
+        '<div class="pod-name">' + avatar(p) + '<div>' + playerLink(p) + '<span class="pod-split" style="display:block">DM ' + p.dm + ' · TDM ' + p.tdm + '</span></div></div>' +
         '<div class="pod-total">' + p.total + '</div>' +
       '</article>';
     });
@@ -207,7 +232,7 @@ function render(rows){
     html += '<div class="row head"><span>Puesto</span><span>Jugador</span><span>Victorias</span></div><ol class="rank">';
     rest.forEach((p, i) => {
       html += '<li class="row"><span class="pos">' + (i + 4) + '</span>' +
-        '<span class="name">' + playerLink(p) + '<span class="split">DM ' + p.dm + ' y TDM ' + p.tdm + '</span></span>' +
+        '<span class="name who">' + avatar(p) + '<span>' + playerLink(p) + '<span class="split">DM ' + p.dm + ' y TDM ' + p.tdm + '</span></span></span>' +
         '<span class="total">' + p.total + '</span></li>';
     });
     html += '</ol>';
@@ -240,3 +265,4 @@ dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 </script>
 </body>
 </html>
+
